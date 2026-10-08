@@ -1,0 +1,55 @@
+{
+  "baseUrl": "http://localhost:3001",
+  "endpoints": [
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "authRequired": false,
+      "expectedSuccessStatus": 200
+    },
+    {
+      "path": "/api/users",
+      "method": "GET",
+      "authRequired": true,
+      "requiredRole": "user"
+    },
+    {
+      "path": "/api/users",
+      "method": "POST",
+      "authRequired": true,
+      "requiredRole": "user",
+      "sampleBody": {
+        "name": "Alex Mercer",
+        "email": "alex@example.com"
+      }
+    },
+    {
+      "path": "/api/admin/metrics",
+      "method": "GET",
+      "authRequired": true,
+      "requiredRole": "admin"
+    }
+  ],
+  "auth": {
+    "userToken": "user-test-token",
+    "adminToken": "admin-secret-token",
+    "authHeader": "Authorization",
+    "tokenPrefix": "Bearer "
+  },
+  "stress": {
+    "durationSec": 6,
+    "rampUpStages": [
+      { "durationSec": 2, "targetVUs": 5 },
+      { "durationSec": 2, "targetVUs": 25 },
+      { "durationSec": 2, "targetVUs": 65 }
+    ],
+    "maxVUs": 70,
+    "requestTimeoutMs": 4000,
+    "thresholds": {
+      "p95LatencyMs": 250,
+      "p99LatencyMs": 500,
+      "maxErrorRatePercent": 1.0
+    }
+  },
+  "outputDir": "./sentinel-reports"
+}

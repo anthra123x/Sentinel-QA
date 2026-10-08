@@ -1,0 +1,52 @@
+{
+  "name": "sentinel-qa",
+  "version": "1.0.0",
+  "description": "Defensive QA, Performance Resilience & Security Auditing CLI Suite",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "sentinel-qa": "./bin/sentinel.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "sentinel.config.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthra123x/Sentinel-QA.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "dev": "tsc -w",
+    "cli": "node ./bin/sentinel.js",
+    "demo": "node dist/demo/demo-server.js",
+    "demo:hardened": "node dist/demo/demo-server.js --hardened",
+    "test": "node ./bin/sentinel.js audit --url http://localhost:3001",
+    "test:full": "node ./bin/sentinel.js run --url http://localhost:3001"
+  },
+  "keywords": [
+    "qa",
+    "security-audit",
+    "performance",
+    "stress-testing",
+    "k6",
+    "artillery",
+    "owasp",
+    "rate-limiting",
+    "devsecops"
+  ],
+  "author": "anthra123x",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2"
+  }
+}
