@@ -10,6 +10,8 @@ import { saveArtilleryScript } from './stress/artillery-generator.js';
 import { analyzeBottlenecksAndRisks } from './diagnose/bottleneck-analyzer.js';
 import { saveReports } from './report/markdown-reporter.js';
 import { printBanner, printAuditSummary, printStressSummary, printReportPaths } from './report/console-reporter.js';
+import { scanProject } from './scanner/project-scanner.js';
+import { runInteractiveCli } from './interactive/interactive-cli.js';
 import { FullAuditReport, StressTestSummary } from './types.js';
 
 const program = new Command();
@@ -18,6 +20,69 @@ program
   .name('sentinel-qa')
   .description('Defensive QA, Performance Resilience & Security Auditing Suite')
   .version('1.0.0');
+
+// Subcommand: interactive
+program
+  .command('interactive')
+  .alias('ui')
+  .description('Launch interactive terminal assistant for project breakdown, audits, and stress testing')
+  .action(async () => {
+    await runInteractiveCli();
+  });
+
+// Subcommand: scan
+program
+  .command('scan')
+  .description('Perform deep static analysis and get an absolute breakdown of the project (Stack, SAST, Endpoints)')
+  .action(async () => {
+    printBanner();
+    console.log(pc.cyan('Iniciando escaneo profundo del proyecto actual...\n'));
+    const breakdown = await scanProject(process.cwd());
+    
+    console.log(pc.bold('=== 📦 ARQUITECTURA Y STACK ==='));
+    console.log(`Lenguaje:  ${pc.cyan(breakdown.stack.language)}`);
+    console.log(`Framework: ${pc.magenta(breakdown.stack.framework)}`);
+    console.log(`ORM/DB:    ${breakdown.stack.ormOrDatabase.join(', ')}`);
+    console.log(`Puntuación Defensiva Estática: ${breakdown.defensiveScore >= 80 ? pc.green(`${breakdown.defensiveScore}/100`) : pc.yellow(`${breakdown.defensiveScore}/100`)}\n`);
+
+    console.log(pc.bold('=== 🛡️  CONTROLES DEFENSIVOS ==='));
+    const ctrl = breakdown.stack.securityControls;
+    const formatCtrl = (active: boolean) => active ? pc.green('✔ Activo') : pc.red('✘ Faltante');
+    console.log(`Cabeceras de Seguridad (Helmet):    ${formatCtrl(ctrl.hasSecurityHeaders)}`);
+    console.log(`Limitador de Tasa (Rate Limiting):   ${formatCtrl(ctrl.hasRateLimiter)}`);
+    console.log(`Límites de Tamaño de Body (>100KB): ${formatCtrl(ctrl.hasBodySizeLimits)}`);
+    console.log(`Validación de Esquemas (Zod/Joi):   ${formatCtrl(ctrl.hasValidationLibrary)}`);
+    console.log(`Middleware de Autenticación:        ${formatCtrl(ctrl.hasAuthMiddleware)}\n`);
+
+    console.log(pc.bold(`=== 🌐 ENDPOINTS DESCUBIERTOS (${breakdown.discoveredEndpoints.length}) ===`));
+    for (const ep of breakdown.discoveredEndpoints.slice(0, 10)) {
+      const auth = ep.authRequired ? pc.yellow('[Auth]') : pc.green('[Público]');
+      console.log(`  • ${pc.bold(ep.method.padEnd(6))} ${ep.path} ${auth}`);
+    }
+    if (breakdown.discoveredEndpoints.length > 10) {
+      console.log(pc.dim(`  ... y ${breakdown.discoveredEndpoints.length - 10} endpoints más.`));
+    }
+    console.log('');
+
+    if (breakdown.staticVulnerabilities.length > 0) {
+      console.log(pc.bold(pc.red(`=== ⚠️  VULNERABILIDADES ESTÁTICAS DETECTADAS (${breakdown.staticVulnerabilities.length}) ===`)));
+      for (const v of breakdown.staticVulnerabilities) {
+        console.log(`- [${v.severity}] ${pc.bold(v.title)} (${v.file}:${v.line})`);
+        console.log(pc.gray(`  Snippet: ${v.snippet}`));
+        console.log(pc.yellow(`  Solución: ${v.recommendation}\n`));
+      }
+    } else {
+      console.log(pc.green('✔ No se detectaron vulnerabilidades críticas en el código fuente.\n'));
+    }
+
+    if (breakdown.recommendations.length > 0) {
+      console.log(pc.bold('=== 💡 RECOMENDACIONES DE ENDURECIMIENTO ==='));
+      for (const rec of breakdown.recommendations) {
+        console.log(`• ${rec}`);
+      }
+      console.log('');
+    }
+  });
 
 // Subcommand: init
 program
@@ -186,4 +251,8 @@ program
     printReportPaths(mdPath, jsonPath);
   });
 
-program.parse(process.argv);
+if (process.argv.slice(2).length === 0) {
+  runInteractiveCli();
+} else {
+  program.parse(process.argv);
+}

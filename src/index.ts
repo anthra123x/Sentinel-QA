@@ -12,3 +12,5 @@ export * from './stress/artillery-generator.js';
 export * from './diagnose/bottleneck-analyzer.js';
 export * from './report/markdown-reporter.js';
 export * from './report/console-reporter.js';
+export * from './scanner/project-scanner.js';
+export * from './interactive/interactive-cli.js';

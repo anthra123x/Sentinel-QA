@@ -118,28 +118,34 @@ npm link
 
 ## 🚀 Uso Rápido
 
-### 1. Inicializar la Configuración en tu Proyecto
-Crea una plantilla `sentinel.config.json` en la raíz de tu proyecto:
+### 1. Modo Interactivo (Asistente Visual)
+Simplemente ejecuta `sentinel-qa` sin argumentos (o `sentinel-qa interactive`) para abrir el asistente interactivo con menús, spinners animados y asistentes de configuración:
 ```bash
-sentinel-qa init
+sentinel-qa
 ```
 
-### 2. Ejecutar el Ciclo Completo (Auditoría + Estrés + Diagnóstico + Reporte)
+### 2. Desglose Absoluto del Proyecto (Auto-Discovery & SAST)
+Escanea el backend actual, detecta el framework, mapea todos los endpoints y analiza vulnerabilidades estáticas en código fuente:
+```bash
+sentinel-qa scan
+```
+
+### 3. Ejecutar el Ciclo Completo Directo (Auditoría + Estrés + Diagnóstico + Reporte)
 ```bash
 sentinel-qa run --url http://localhost:3000
 ```
 
-### 3. Ejecutar solo la Auditoría de Seguridad e Integración
+### 4. Ejecutar solo la Auditoría de Seguridad e Integración
 ```bash
 sentinel-qa audit --url http://localhost:3000
 ```
 
-### 4. Ejecutar solo las Pruebas de Carga
+### 5. Ejecutar solo las Pruebas de Carga
 ```bash
 sentinel-qa stress --url http://localhost:3000
 ```
 
-### 5. Generar Scripts para k6 o Artillery
+### 6. Generar Scripts para k6 o Artillery
 ```bash
 sentinel-qa k6
 # Ejecutar con k6:
@@ -156,6 +162,9 @@ npx artillery run sentinel-reports/artillery-stress-test.yml
 
 | Comando | Descripción | Opciones principales |
 | :--- | :--- | :--- |
+| `sentinel-qa` | **Modo Interactivo por defecto**: Menús visuales, escaneo y wizards | N/A |
+| `sentinel-qa interactive` (o `ui`) | Lanza el asistente interactivo en la terminal | N/A |
+| `sentinel-qa scan` | **Desglose absoluto del proyecto**: Stack, endpoints, SAST y recomendaciones | N/A |
 | `sentinel-qa run` | Ejecuta el ciclo integral (Auditoría + Estrés + Parches + Reporte) | `-u, --url <url>`, `-c, --config <file>`, `-o, --output <dir>` |
 | `sentinel-qa audit` | Ejecuta únicamente las verificaciones defensivas y de seguridad | `-u, --url <url>`, `-c, --config <file>`, `-o, --output <dir>` |
 | `sentinel-qa stress` | Ejecuta pruebas sintéticas de concurrencia y percentiles | `-u, --url <url>`, `-c, --config <file>`, `-o, --output <dir>` |
